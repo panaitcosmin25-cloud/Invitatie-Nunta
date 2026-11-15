@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Heart Button</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #dfe4e8;
+    --ink: #2b3a47;
+    --btn-bg: #2b3a47;
+    --btn-ink: #f4f5f6;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #151c23;
+      --ink: #c5d0d9;
+      --btn-bg: #c5d0d9;
+      --btn-ink: #151c23;
+    }
+  }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Caveat", "Segoe Script", "Bradley Hand", cursive;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; padding: 12px; box-sizing: border-box;
+  }
+  svg { height: min(82vh, 150vw); width: auto; max-width: 100%; overflow: visible; }
+
+  .half { transition: transform 1.25s cubic-bezier(.65,.02,.2,1), filter 1.25s ease, opacity .5s ease; }
+  #left  { transform-origin: 20px 450px; }
+  #right { transform-origin: 580px 450px; transition-delay: .06s; }
+  .open #left  { transform: scaleX(.17) skewY(-3.5deg); filter: brightness(.78); }
+  .open #right { transform: scaleX(.17) skewY(3.5deg);  filter: brightness(.78); }
+
+  #lining { transition: opacity .5s ease; }
+  .half { will-change: auto; }
+  .reveal #lining, .reveal .half { opacity: 0; filter: none; }
+  .gone #lining, .gone .half { display: none; }
+  svg { text-rendering: geometricPrecision; }
+
+  #heart { cursor: pointer; transform-box: fill-box; transform-origin: center; transition: transform .3s cubic-bezier(.3,1.6,.5,1), opacity .35s; outline: none; }
+  #heart:hover { transform: scale(1.07); }
+  #heart:active { transform: scale(.9); }
+  #heart:focus-visible .rim { stroke: #f2c14e; stroke-width: 4; }
+  .beat { transform-box: fill-box; transform-origin: center; animation: beat 2.4s ease-in-out infinite; }
+  @keyframes beat { 0%,60%,100% { transform: scale(1); } 68% { transform: scale(1.07); } 76% { transform: scale(.98); } 84% { transform: scale(1.04); } }
+  .open #heart { opacity: 0; transform: scale(.3); pointer-events: none; }
+
+  #card { transform-box: fill-box; transform-origin: center; transition: transform .7s cubic-bezier(.3,.9,.3,1); }
+  .lift #card { transform: translateY(-36px); filter: url(#paperShadow); }
+  .reveal #card { filter: none; }
+  #back { display: none; }
+  #back .ln { opacity: 0; transition: opacity .8s; }
+  .text #back .ln { opacity: 1; }
+  .text #back .l1 { transition-delay: 0s; }   .text #back .l2 { transition-delay: .5s; }
+  .text #back .l3 { transition-delay: .9s; }  .text #back .l4 { transition-delay: 1.4s; }
+  .text #back .l5 { transition-delay: 1.8s; } .text #back .l6 { transition-delay: 2.2s; }
+  .text #back .l7 { transition-delay: 2.6s; } .text #back .l8 { transition-delay: 3.2s; }
+
+  body { overflow: hidden; }
+  #toggle { transition: opacity .4s; }
+  .reveal-mode #toggle { position: fixed; bottom: max(18px, env(safe-area-inset-bottom, 0px)); left: 50%; translate: -50% 0; z-index: 5; }
+  #toggle {
+    font: 700 22px/1 "Caveat", "Segoe Script", cursive;
+    background: var(--btn-bg); color: var(--btn-ink);
+    border: 0; border-radius: 999px; padding: 10px 26px; cursor: pointer;
+  }
+  #toggle:focus-visible { outline: 3px solid #f2c14e; outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .half, #card, #back .ln, #heart { transition-duration: .01s !important; transition-delay: 0s !important; }
+    .beat { animation: none; }
+  }
+</style>
+</head>
+<body>
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" role="img" aria-label="A blue-grey jacket with a black bow tie and a heart-shaped button">
+  <defs>
+    <filter id="foldShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="4" stdDeviation="4.5" flood-color="#141e26" flood-opacity="0.38"/>
+    </filter>
+    <filter id="buttonShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="1" dy="5" stdDeviation="4" flood-color="#0d1318" flood-opacity="0.45"/>
+    </filter>
+    <filter id="paperShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <linearGradient id="liningShade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset=".3" stop-color="#000" stop-opacity="0"/>
+      <stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/>
+    </linearGradient>
+    <pattern id="tieStripe" patternUnits="userSpaceOnUse" width="16" height="16" patternTransform="rotate(32)">
+      <rect width="6" height="16" fill="#3b5068" fill-opacity=".55"/>
+    </pattern>
+    <linearGradient id="cardShade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity=".14"/><stop offset=".3" stop-color="#000" stop-opacity="0"/>
+      <stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".14"/>
+    </linearGradient>
+    <linearGradient id="jacketBase" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#768fa4"/><stop offset="50%" stop-color="#688196"/><stop offset="100%" stop-color="#5b7387"/>
+    </linearGradient>
+    <linearGradient id="lapelSurface" x1="0%" y1="0%" x2="100%" y2="80%">
+      <stop offset="0%" stop-color="#8098ad"/><stop offset="100%" stop-color="#6c859a"/>
+    </linearGradient>
+    <linearGradient id="bowLeftGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#141414"/><stop offset="45%" stop-color="#292929"/><stop offset="100%" stop-color="#111111"/>
+    </linearGradient>
+    <linearGradient id="bowRightGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#111111"/><stop offset="55%" stop-color="#292929"/><stop offset="100%" stop-color="#141414"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Jacket lining (seen when the jacket opens) -->
+  <g id="lining"><rect x="20" y="30" width="560" height="840" fill="#24303a"/><rect x="20" y="30" width="560" height="840" fill="url(#liningShade)"/></g>
+
+  <!-- Card: same size as the jacket. Front = shirt with a printed tie, back = the note -->
+  <g id="card">
+    <rect id="measure" x="21.5" y="31.5" width="557" height="837" fill="none" pointer-events="none"/>
+    <g id="flip">
+    <g id="back">
+      <rect x="21.5" y="31.5" width="557" height="837" fill="#fbf6e6" stroke="#d9cfae" stroke-width="1.5"/>
+      <path d="M 578.5,31.5 L 578.5,105 L 505,31.5 Z" fill="#e8dfc0"/>
+      <path d="M 21.5,450 L 578.5,450" stroke="#000" stroke-opacity="0.07" stroke-width="3"/>
+      <g stroke="#9bb3c9" stroke-opacity="0.55" stroke-width="1.5">
+        <line x1="50" y1="302" x2="550" y2="302"/><line x1="50" y1="374" x2="550" y2="374"/>
+        <line x1="50" y1="446" x2="550" y2="446"/><line x1="50" y1="518" x2="550" y2="518"/>
+        <line x1="50" y1="590" x2="550" y2="590"/><line x1="50" y1="662" x2="550" y2="662"/>
+        <line x1="50" y1="734" x2="550" y2="734"/><line x1="50" y1="806" x2="550" y2="806"/>
+      </g>
+      <g fill="#243b57" font-family="Caveat, 'Segoe Script', cursive" text-anchor="middle">
+        <text class="ln l1" x="300" y="170" font-size="68" font-weight="700">You found it.</text>
+        <text class="ln l2" x="300" y="290" font-size="46" font-weight="500">Hardly anyone presses</text>
+        <text class="ln l3" x="300" y="362" font-size="46" font-weight="500">the little heart.</text>
+        <text class="ln l4" x="300" y="506" font-size="46" font-weight="500">So here is the secret:</text>
+        <text class="ln l5" x="300" y="578" font-size="46" font-weight="500">the best thing about</text>
+        <text class="ln l6" x="300" y="650" font-size="46" font-weight="500">a well-cut jacket is</text>
+        <text class="ln l7" x="300" y="722" font-size="46" font-weight="500">what it keeps close.</text>
+        <text class="ln l8" x="445" y="840" font-size="42" font-weight="700" fill="#a23b4a">— the tailor ♥</text>
+      </g>
+    </g>
+    <g id="front">
+      <rect id="frontRect" x="21.5" y="31.5" width="557" height="837" fill="#f4f5f6"/>
+      <rect x="21.5" y="31.5" width="557" height="837" fill="url(#cardShade)"/>
+      <!-- printed tie (flat, no shadow) -->
+      <path d="M 288,108 L 312,108 L 334,400 L 300,462 L 266,400 Z" fill="#1f2933" stroke="#121920" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M 288,108 L 312,108 L 334,400 L 300,462 L 266,400 Z" fill="url(#tieStripe)"/>
+      <path d="M 276,62 L 324,62 L 314,112 L 286,112 Z" fill="#273544" stroke="#121920" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M 300,66 L 300,108" stroke="#121920" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+    </g>
+    </g>
+  </g>
+
+  <!-- Left half of jacket -->
+  <g id="left" class="half">
+    <path d="M 20,30 L 185,30 L 298,585 L 312,640 L 312,870 L 20,870 Z" fill="url(#jacketBase)"/>
+        <polygon points="122,30 185,30 202,102 152,135 104,102" fill="url(#lapelSurface)" stroke="#556b7d" stroke-width="0.8" filter="url(#foldShadow)"/>
+    <polygon points="204,114 295,580 278,645 68,118 145,144" fill="url(#lapelSurface)" stroke="#556b7d" stroke-width="0.8" filter="url(#foldShadow)"/>
+  </g>
+
+  <!-- Right half of jacket -->
+  <g id="right" class="half">
+    <path d="M 580,30 L 415,30 L 302,585 L 298,640 L 298,870 L 580,870 Z" fill="url(#jacketBase)"/>
+    <line x1="298" y1="640" x2="298" y2="870" stroke="#475b6b" stroke-width="1.2"/>
+    <polygon points="478,30 415,30 398,102 448,135 496,102" fill="url(#lapelSurface)" stroke="#556b7d" stroke-width="0.8" filter="url(#foldShadow)"/>
+    <polygon points="396,114 305,580 322,645 532,118 455,144" fill="url(#lapelSurface)" stroke="#556b7d" stroke-width="0.8" filter="url(#foldShadow)"/>
+  </g>
+
+  
+  <!-- Heart button -->
+  <g transform="translate(298, 728)">
+    <g id="heart" role="button" tabindex="0" aria-label="Open the jacket" aria-expanded="false">
+      <g class="beat" filter="url(#buttonShadow)">
+        <path class="rim" d="M 0,44 C -22,26 -48,2 -48,-20 C -48,-39 -33,-49 -18,-49 C -7,-49 0,-41 0,-34 C 0,-41 7,-49 18,-49 C 33,-49 48,-39 48,-20 C 48,2 22,26 0,44 Z" fill="#2c2927" stroke="#181615" stroke-width="1.8"/>
+        <path d="M 0,36 C -17,21 -39,0 -39,-19 C -39,-33 -28,-41 -16,-41 C -7,-41 0,-34 0,-27 C 0,-34 7,-41 16,-41 C 28,-41 39,-33 39,-19 C 39,0 17,21 0,36 Z" fill="none" stroke="#857e77" stroke-width="1.4" stroke-dasharray="4.5,3.5"/>
+        <circle cx="-9" cy="-8" r="3.2" fill="#12100f"/><circle cx="9" cy="-8" r="3.2" fill="#12100f"/>
+        <line x1="-9" y1="-8" x2="9" y2="-8" stroke="#5e5853" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g>
+</svg>
+
+<button id="toggle" type="button">Press the heart</button>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var heart = document.getElementById('heart');
+  var btn = document.getElementById('toggle');
+  var measure = document.getElementById('measure');
+  var flip = document.getElementById('flip');
+  var front = document.getElementById('front');
+  var back = document.getElementById('back');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var state = 'closed', busy = false, T = null, raf = 0;
+
+  function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+  function target() {
+    stage.style.transform = 'none';
+    var r = stage.getBoundingClientRect(), p = measure.getBoundingClientRect();
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var s = Math.min(vw * 0.94 / p.width, (vh - 70) * 0.94 / p.height);
+    var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    var px = p.left + p.width / 2, py = p.top + p.height / 2;
+    return { s: s, tx: vw / 2 - cx - s * (px - cx), ty: (vh - 56) / 2 - cy - s * (py - cy) };
+  }
+
+  // One clock drives the zoom and the turn, so they never drift apart.
+  function apply(p) {
+    var e = ease(p);
+    stage.style.transform = 'translate(' + (T.tx * e) + 'px,' + (T.ty * e) + 'px) scale(' + (1 + (T.s - 1) * e) + ')';
+    var th = Math.PI * ease(Math.min(1, p / 0.8));
+    var sx = Math.max(Math.abs(Math.cos(th)), 0.002), sy = 1 + 0.05 * Math.sin(th);
+    var front_on = th < Math.PI / 2;
+    front.style.display = front_on ? '' : 'none';
+    back.style.display = front_on ? 'none' : 'block';
+    flip.setAttribute('transform', 'translate(300 450) scale(' + sx + ' ' + sy + ') translate(-300 -450)');
+  }
+
+  function run(from, to, dur, done) {
+    cancelAnimationFrame(raf);
+    if (reduce) dur = 1;
+    var t0 = performance.now();
+    (function step(now) {
+      var k = Math.min(1, (now - t0) / dur);
+      apply(from + (to - from) * k);
+      if (k < 1) raf = requestAnimationFrame(step); else if (done) done();
+    })(t0);
+  }
+
+  function openIt() {
+    if (busy || state !== 'closed') return;
+    busy = true; state = 'open';
+    stage.classList.add('open');
+    heart.setAttribute('aria-expanded', 'true');
+    btn.style.opacity = '0'; btn.disabled = true;
+    setTimeout(function () { stage.classList.add('lift'); }, 1300);
+    setTimeout(function () {
+      document.body.classList.add('reveal-mode');
+      T = target();
+      stage.classList.add('reveal');
+      setTimeout(function () { stage.classList.add('gone'); }, 550);
+      setTimeout(function () { stage.classList.add('text'); }, 1500);
+      run(0, 1, 2400);
+    }, 2100);
+    setTimeout(function () { btn.textContent = 'Put it back'; btn.style.opacity = '1'; btn.disabled = false; busy = false; state = 'revealed'; }, 7000);
+  }
+
+  function closeIt() {
+    if (busy || state !== 'revealed') return;
+    busy = true; btn.disabled = true; btn.style.opacity = '0';
+    stage.classList.remove('text');
+    stage.classList.remove('gone');
+    requestAnimationFrame(function () { stage.classList.remove('reveal'); });
+    run(1, 0, 2000, function () {
+      stage.style.transform = 'none';
+      stage.classList.remove('lift');
+      stage.classList.remove('open');
+      heart.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('reveal-mode');
+      setTimeout(function () { btn.textContent = 'Press the heart'; btn.style.opacity = '1'; btn.disabled = false; state = 'closed'; busy = false; }, 1400);
+    });
+  }
+
+  heart.addEventListener('click', openIt);
+  heart.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openIt(); }
+  });
+  btn.addEventListener('click', function () { if (state === 'revealed') closeIt(); else openIt(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeIt(); });
+  window.addEventListener('resize', function () { if (state === 'revealed') { T = target(); apply(1); } });
+})();
+</script>
+</body>
+</html>
